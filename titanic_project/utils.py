@@ -73,6 +73,16 @@ def preprocess_titanic():
     embarked_1hot_test = pd.get_dummies(X_test['Embarked'])
 
     X_train = pd.concat([X_train, embarked_1hot_train], axis = 1)
+    X_train.rename(columns = {'C': 'embarked_cherbourg', 'Q': 'embarked_queenstown', 'S': 'embarked_southampton'}, inplace = True)
     X_test = pd.concat([X_test, embarked_1hot_test], axis = 1)
+    X_test.rename(columns = {'C': 'embarked_cherbourg', 'Q': 'embarked_queenstown', 'S': 'embarked_southampton'}, inplace = True)
+
+    X_train = X_train.drop('Embarked', axis = 1)
+    X_test = X_test.drop('Embarked', axis = 1)
+    
+    # renaming columns for standardizing
+    
+    X_train.rename(columns = {'Pclass': 'pclass', 'Age': 'age', 'SibSp': 'sibsp', 'Parch': 'parch', 'Fare': 'fare'}, inplace = True)
+    X_test.rename(columns = {'Pclass': 'pclass', 'Age': 'age', 'SibSp': 'sibsp', 'Parch': 'parch', 'Fare': 'fare'}, inplace = True)
     
     return y_train, X_train, X_test
