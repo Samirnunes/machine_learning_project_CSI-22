@@ -91,7 +91,7 @@ def preprocess_titanic():
     # step 8: mode imputation
 
     imputer = SimpleImputer(strategy = 'most_frequent')
-    X_train = pd.DataFrame(imputer.fit_transform(X_train), columns = X_train.columns)
-    X_test = pd.DataFrame(imputer.transform(X_test), columns = X_test.columns)
+    X_train = pd.DataFrame(imputer.fit_transform(X_train), columns = X_train.columns, index = X_train.index)
+    X_test = pd.DataFrame(imputer.transform(X_test), columns = X_test.columns, index = X_test.index)
 
     return y_train, X_train, X_test
