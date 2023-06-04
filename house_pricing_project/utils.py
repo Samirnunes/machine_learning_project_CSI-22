@@ -7,6 +7,9 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import MinMaxScaler
 
 def preprocess_houses():
+    '''
+    returns: Tuple of Pandas dataframes (y_train, X_train, X_test) with the data ready for Machine Learning.
+    '''
 
     # import data
     train_path = os.path.join('data', 'train.csv')
@@ -16,7 +19,6 @@ def preprocess_houses():
     test_data = pd.read_csv(test_path, index_col = 'Id')
 
     # separate data
-
     features = test_data.columns
     label = 'SalePrice'
 
@@ -28,7 +30,6 @@ def preprocess_houses():
     numerical = list(set(features).difference(set(categorical)))
 
     # numerical scaling and imputation
-
     scaler = StandardScaler()
 
     X_train[numerical] = scaler.fit_transform(X_train[numerical])
@@ -40,14 +41,12 @@ def preprocess_houses():
     X_test[numerical] = pd.DataFrame(imputer.transform(X_test[numerical]), columns = numerical, index = X_test.index)
 
     # categorical imputation
-
     imputer = SimpleImputer(strategy = 'most_frequent')
 
     X_train[categorical] = pd.DataFrame(imputer.fit_transform(X_train[categorical]), columns = categorical, index = X_train.index)
     X_test[categorical] = pd.DataFrame(imputer.transform(X_test[categorical]), columns = categorical, index = X_test.index)
 
     # categorical encoding
-
     categorical_description = X_train[categorical].describe()
 
     unique2 = categorical_description.loc['unique'] == 2
@@ -83,8 +82,8 @@ def preprocess_houses():
     ordinal_encoder = OrdinalEncoder(handle_unknown = 'use_encoded_value', unknown_value = -1)
     X_train[ordered_classes] = ordinal_encoder.fit_transform(X_train[ordered_classes])
     X_test[ordered_classes] = ordinal_encoder.transform(X_test[ordered_classes])
-    # categorical scaling
 
+    # categorical scaling
     scaler = MinMaxScaler()
     to_scale = list(set(X_train.columns).difference(numerical))
 
