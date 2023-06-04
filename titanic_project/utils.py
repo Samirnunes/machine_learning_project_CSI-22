@@ -1,26 +1,35 @@
 import os
 import pandas as pd
 from sklearn.impute import SimpleImputer
+import re
+
+def get_title_from_name(name):
+    title_search = re.search(' ([A-Za-z]+)\.', name)
+    if title_search:
+        return title_search.group(1)
+    return ''
 
 def preprocess_titanic():
     '''
     We will do the following preprocess steps, which doesn't need to be done in order:
 
-    1) Transform 'Sex' column into numerical data through a new column named 'is_male'. If it's 1, then it's male. If it's 0, then it's female.
+    -Transform 'Sex' column into numerical data through a new column named 'Is_Male'. If it's 1, then it's male. If it's 0, then it's female.
 
-    2) Standard scaling on 'Age' column.
+    -Median imputation for 'Age'.
 
-    3) Standard scaling on 'Parch' column.
+    -Create bins for 'Age': ['Children','Teenage','Adult','Elder'] and then make one-hot encoding.
 
-    4) Since there are a lot of classes in the 'Ticket' column, it doesn't worth it to one-hot encode. So we will eliminate this column for prediction.
+    -Create bins for 'Fare': ['Low','Median', 'Average','High'] and then make one-hot encoding. Mode imputation.
 
-    5) Standard scaling on 'Fare' column.
+    -Add feature 'Titles' which has the passenger's name's titles. Then, one-hot encode them. Mode imputation.
 
-    6) Since there are a lot of classes in the 'Cabin' column, it doesn't worth it to one-hot encode. So we will eliminate this column for prediction.
+    -Since there are a lot of classes in the 'Cabin' column, it doesn't worth it to one-hot encode. So we will eliminate this column for prediction.
 
-    7) Transform 'Embarked' column into numerical data through one-hot encoding.
+    -Since there are a lot of classes in the 'Ticket' column, it doesn't worth it to one-hot encode. So we will eliminate this column for prediction.
 
-    8) Mode imputation for all columns.
+    -Create feature 'Family_Size' = 'SibSp' + 'Parch'. Mode imputation.
+
+    -Transform 'Embarked' column into numerical data through one-hot encoding. Mode imputation.
     
     returns: Tuple with the Pandas dataframes y_train (labels), X_train and X_test (features).
     '''
@@ -33,7 +42,6 @@ def preprocess_titanic():
     
     # get features and label
     features = list(test_data.columns)
-    features.remove('Name')
     label = 'Survived'
 
     # separate data
@@ -41,57 +49,61 @@ def preprocess_titanic():
     y_train = train_data[label].copy()
     X_test = test_data[features].copy()
     
-    # steps 4 and 7
     X_train = X_train.drop(['Ticket', 'Cabin'], axis = 1)
     X_test = X_test.drop(['Ticket', 'Cabin'], axis = 1)
     
-    # step 
-    X_train['is_male'] = X_train['Sex'].apply(lambda x: 1 if x == 'male' else 0)
-    X_test['is_male'] = X_test['Sex'].apply(lambda x: 1 if x == 'male' else 0)
+    X_train['Is_Male'] = X_train['Sex'].apply(lambda x: 1 if x == 'male' else 0)
+    X_test['Is_Male'] = X_test['Sex'].apply(lambda x: 1 if x == 'male' else 0)
 
-    X_train = X_train.drop('Sex', axis = 1)
-    X_test = X_test.drop('Sex', axis = 1)
+    X_train['Age'].fillna(X_train['Age'].median(), inplace = True)
+    X_test['Age'].fillna(X_train['Age'].median(), inplace = True)
+
+    X_train['Title'] = X_train['Name'].apply(get_title_from_name)
+    X_test['Title'] = X_test['Name'].apply(get_title_from_name)
+
+    # Replacing rare titles by 'Rare'.
+
+    X_train['Title'] = X_train['Title'].replace(['Lady', 'Countess','Capt', 'Col','Don', 'Dr', 
+                                                'Major', 'Rev', 'Sir', 'Jonkheer', 'Dona'], 'Rare')
+
+    X_test['Title'] = X_test['Title'].replace(['Lady', 'Countess','Capt', 'Col','Don', 'Dr', 
+                                                'Major', 'Rev', 'Sir', 'Jonkheer', 'Dona'], 'Rare')
+
+    # Transforming titles to their related:
+    X_train['Title'] = X_train['Title'].replace('Mlle', 'Miss')
+    X_train['Title'] = X_train['Title'].replace('Ms', 'Miss')
+    X_train['Title'] = X_train['Title'].replace('Mme', 'Mrs')
+    X_test['Title'] = X_test['Title'].replace('Mlle', 'Miss')
+    X_test['Title'] = X_test['Title'].replace('Ms', 'Miss')
+    X_test['Title'] = X_test['Title'].replace('Mme', 'Mrs')
+
+    X_train['Age_Bin'] = pd.cut(X_train['Age'], bins = [0, 12, 20, 40, 100], labels = ['Child', 'Teen', 'Adult', 'Elder'])
+    X_test['Age_Bin'] = pd.cut(X_test['Age'], bins = [0, 12, 20, 40, 100], labels = ['Child', 'Teen', 'Adult', 'Elder'])
+
+    X_train['Fare_Bin'] = pd.cut(X_train['Fare'], bins = [0, 7.91, 14.45, 31, 550], labels = ['Low', 'Median', 'Mean', 'High'])
+    X_test['Fare_Bin'] = pd.cut(X_test['Fare'], bins = [0, 7.91, 14.45, 31, 550], labels = ['Low', 'Median', 'Mean', 'High'])
     
-    # steps 2, 3 and 5
-    age_mean = X_train['Age'].mean()
-    age_std = X_train['Age'].std()
+    mode_imputer = SimpleImputer(strategy = 'most_frequent')
+    impute_cols = ['Title', 'Age_Bin', 'Fare_Bin', 'Embarked']
 
-    X_train['Age'] = (X_train['Age'] - age_mean) / age_std
-    X_test['Age'] = (X_test['Age'] - age_mean) / age_std
-
-    parch_mean = X_train['Parch'].mean()
-    parch_std = X_train['Parch'].std()
-
-    X_train['Parch'] = (X_train['Parch'] - parch_mean) / parch_std
-    X_test['Parch'] = (X_test['Parch'] - parch_mean) / parch_std
-
-    fare_mean = X_train['Fare'].mean()
-    fare_std = X_train['Fare'].std()
-
-    X_train['Fare'] = (X_train['Fare'] - fare_mean) / fare_std
-    X_test['Fare'] = (X_test['Fare'] - fare_mean) / fare_std
+    X_train[impute_cols] = pd.DataFrame(mode_imputer.fit_transform(X_train[impute_cols]), index = X_train.index, columns = impute_cols) 
+    X_test[impute_cols] = pd.DataFrame(mode_imputer.transform(X_test[impute_cols]), index = X_test.index, columns = impute_cols)
     
-    # step 7 
-    embarked_1hot_train = pd.get_dummies(X_train['Embarked'])
-    embarked_1hot_test = pd.get_dummies(X_test['Embarked'])
+    X_train = pd.get_dummies(X_train, columns = ['Title', 'Age_Bin', 'Fare_Bin', 'Embarked'],
+                         prefix = ['Title', 'Age_Bin', 'Fare_Class', 'Embark_Place'])
 
-    X_train = pd.concat([X_train, embarked_1hot_train], axis = 1)
-    X_train.rename(columns = {'C': 'embarked_cherbourg', 'Q': 'embarked_queenstown', 'S': 'embarked_southampton'}, inplace = True)
-    X_test = pd.concat([X_test, embarked_1hot_test], axis = 1)
-    X_test.rename(columns = {'C': 'embarked_cherbourg', 'Q': 'embarked_queenstown', 'S': 'embarked_southampton'}, inplace = True)
-
-    X_train = X_train.drop('Embarked', axis = 1)
-    X_test = X_test.drop('Embarked', axis = 1)
+    X_test = pd.get_dummies(X_test, columns = ['Title', 'Age_Bin', 'Fare_Bin', 'Embarked'],
+                            prefix = ['Title', 'Age_Bin', 'Fare_Class', 'Embark_Place'])
     
-    # renaming columns for standardizing
-    
-    X_train.rename(columns = {'Pclass': 'pclass', 'Age': 'age', 'SibSp': 'sibsp', 'Parch': 'parch', 'Fare': 'fare'}, inplace = True)
-    X_test.rename(columns = {'Pclass': 'pclass', 'Age': 'age', 'SibSp': 'sibsp', 'Parch': 'parch', 'Fare': 'fare'}, inplace = True)
+    X_train['Family_Size'] = X_train['Parch'] + X_train['SibSp']
+    X_test['Family_Size'] = X_test['Parch'] + X_test['SibSp']
 
-    # step 8: mode imputation
+    X_train = X_train.drop(['Sex', 'Name', 'Age', 'Fare'], axis = 1)
+    X_test = X_test.drop(['Sex', 'Name', 'Age', 'Fare'], axis = 1)
 
-    imputer = SimpleImputer(strategy = 'most_frequent')
-    X_train = pd.DataFrame(imputer.fit_transform(X_train), columns = X_train.columns, index = X_train.index)
-    X_test = pd.DataFrame(imputer.transform(X_test), columns = X_test.columns, index = X_test.index)
+    train_mean = X_train.mean()
+    train_std = X_train.std()
+    X_train = (X_train - train_mean)/train_std
+    X_test = (X_test - train_mean)/train_std
 
     return y_train, X_train, X_test
