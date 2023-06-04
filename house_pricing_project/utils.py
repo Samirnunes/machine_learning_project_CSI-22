@@ -2,11 +2,9 @@ import os
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OrdinalEncoder
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import MinMaxScaler
-import warnings
-warnings.filterwarnings('ignore')
 
 def preprocess_houses():
 
@@ -55,12 +53,9 @@ def preprocess_houses():
     unique2 = categorical_description.loc['unique'] == 2
     unique2 = unique2[unique2 == True].index
 
-    for col in unique2:
-        unique_values = list(X_train[col].unique())
-        unique_values.append('Unseen')
-        le = LabelEncoder().fit(unique_values)
-        X_train[col] = le.transform(X_train[[col]])
-        X_test[col] = le.transform(X_test[[col]])
+    ordinal_encoder = OrdinalEncoder(handle_unknown = 'use_encoded_value', unknown_value = -1)
+    X_train[unique2] = ordinal_encoder.fit_transform(X_train[unique2])
+    X_test[unique2] = ordinal_encoder.transform(X_test[unique2])
 
     uniquegr2 = categorical_description.loc['unique'] > 2
     uniquegr2 = uniquegr2[uniquegr2 == True].index
@@ -85,13 +80,9 @@ def preprocess_houses():
     X_train = X_train.drop(columns = unordered_classes)
     X_test = X_test.drop(columns = unordered_classes)
 
-    for col in ordered_classes:
-        unique_values = list(X_train[col].unique())
-        unique_values.append('Unseen')
-        le = LabelEncoder().fit(unique_values)
-        X_train[col] = le.transform(X_train[[col]])
-        X_test[col] = le.transform(X_test[[col]])
-
+    ordinal_encoder = OrdinalEncoder(handle_unknown = 'use_encoded_value', unknown_value = -1)
+    X_train[ordered_classes] = ordinal_encoder.fit_transform(X_train[ordered_classes])
+    X_test[ordered_classes] = ordinal_encoder.transform(X_test[ordered_classes])
     # categorical scaling
 
     scaler = MinMaxScaler()
