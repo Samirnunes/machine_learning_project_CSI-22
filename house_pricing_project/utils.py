@@ -8,7 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 def preprocess_houses():
     '''
-    returns: Tuple of Pandas dataframes (y_train, X_train, X_test) with the data ready for Machine Learning.
+    returns: Tuple of Pandas dataframes (y_train, X_train, X_test) with the house pricing data ready for Machine Learning.
     '''
 
     # import data
