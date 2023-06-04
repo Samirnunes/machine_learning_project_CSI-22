@@ -34,9 +34,9 @@ def preprocess_titanic():
     label = 'Survived'
 
     # separate data
-    X_train = train_data[features]
-    y_train = train_data[label]
-    X_test = test_data[features]
+    X_train = train_data[features].copy()
+    y_train = train_data[label].copy()
+    X_test = test_data[features].copy()
     
     # steps 4 and 7
     X_train = X_train.drop(['Ticket', 'Cabin'], axis = 1)
@@ -84,5 +84,5 @@ def preprocess_titanic():
     
     X_train.rename(columns = {'Pclass': 'pclass', 'Age': 'age', 'SibSp': 'sibsp', 'Parch': 'parch', 'Fare': 'fare'}, inplace = True)
     X_test.rename(columns = {'Pclass': 'pclass', 'Age': 'age', 'SibSp': 'sibsp', 'Parch': 'parch', 'Fare': 'fare'}, inplace = True)
-    
+
     return y_train, X_train, X_test
