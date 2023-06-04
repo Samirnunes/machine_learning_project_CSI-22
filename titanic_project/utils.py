@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from sklearn.impute import SimpleImputer
 
 def preprocess_titanic():
     '''
@@ -18,6 +19,8 @@ def preprocess_titanic():
     6) Since there are a lot of classes in the 'Cabin' column, it doesn't worth it to one-hot encode. So we will eliminate this column for prediction.
 
     7) Transform 'Embarked' column into numerical data through one-hot encoding.
+
+    8) Mode imputation for all columns.
     
     returns: Tuple with the Pandas dataframes y_train (labels), X_train and X_test (features).
     '''
@@ -84,5 +87,11 @@ def preprocess_titanic():
     
     X_train.rename(columns = {'Pclass': 'pclass', 'Age': 'age', 'SibSp': 'sibsp', 'Parch': 'parch', 'Fare': 'fare'}, inplace = True)
     X_test.rename(columns = {'Pclass': 'pclass', 'Age': 'age', 'SibSp': 'sibsp', 'Parch': 'parch', 'Fare': 'fare'}, inplace = True)
+
+    # step 8: mode imputation
+
+    imputer = SimpleImputer(strategy = 'most_frequent')
+    X_train = pd.DataFrame(imputer.fit_transform(X_train), columns = X_train.columns)
+    X_test = pd.DataFrame(imputer.transform(X_test), columns = X_test.columns)
 
     return y_train, X_train, X_test
