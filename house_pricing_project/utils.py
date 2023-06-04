@@ -5,6 +5,8 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import MinMaxScaler
+import warnings
+warnings.filterwarnings('ignore')
 
 def preprocess_houses():
 
