@@ -1,0 +1,9 @@
+Python Version: 3.10.6
+
+Libraries and Versions
+
+Pandas: 2.0.2
+Numpy: 1.24.3
+Scikit-learn: 1.2.2
+XGBoost: 1.7.5
+Matplotlib: 3.7.1
