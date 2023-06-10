@@ -8,8 +8,11 @@ Resolução dos desafios do Kaggle:
 
 - Titanic: https://www.kaggle.com/c/titanic, cuja resolução está na pasta `titanic_project`.
 
-
 - House Prices: https://www.kaggle.com/c/house-prices-advanced-regression-techniques, cuja resolução está na pasta `house_prices`.
  
 ## Segunda Parte
+
+Escolha de um desafio do Kaggle para resolver.
+
+`In Progress`
 
