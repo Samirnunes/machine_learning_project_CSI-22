@@ -6,10 +6,10 @@ Projeto do 2º bimestre da disciplina de CSI-22 (Programação Orientada a Objet
 
 Resolução dos desafios Titanic e House Prices:
 
-- Titanic: https://www.kaggle.com/c/titanic, cuja resolução está na pasta ´titanic_project´.
+- Titanic: https://www.kaggle.com/c/titanic, cuja resolução está na pasta `titanic_project`.
 
 
-- House Prices: https://www.kaggle.com/c/house-prices-advanced-regression-techniques, cuja resolução está na pasta ´house_prices`.
+- House Prices: https://www.kaggle.com/c/house-prices-advanced-regression-techniques, cuja resolução está na pasta `house_prices`.
  
 ## Segunda Parte
 
