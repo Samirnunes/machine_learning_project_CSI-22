@@ -12,7 +12,7 @@ Resolução dos desafios do Kaggle:
  
 ## Segunda Parte
 
-Escolha de um desafio do Kaggle para resolver.
+Escolha de uma competição do Kaggle para resolver.
 
 `In Progress`
 
