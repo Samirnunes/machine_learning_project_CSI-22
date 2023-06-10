@@ -4,7 +4,7 @@ Projeto do 2º bimestre da disciplina de CSI-22 (Programação Orientada a Objet
 
 ## Primeira Parte
 
-Resolução dos desafios Titanic e House Prices:
+Resolução dos desafios do Kaggle:
 
 - Titanic: https://www.kaggle.com/c/titanic, cuja resolução está na pasta `titanic_project`.
 
