@@ -14,5 +14,5 @@ Resolução dos desafios do Kaggle:
 
 Escolha de uma competição do Kaggle para resolver.
 
-`In Progress`
+- Influencers in Social Networks: https://www.kaggle.com/competitions/predict-who-is-more-influential-in-a-social-network/overview
 
